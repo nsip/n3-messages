@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	//"github.com/nsip/n3-transport/messages"
-	"../messages"
+	"github.com/nsip/n3-messages/messages"
 )
 
 func TestNewPublisher(t *testing.T) {
@@ -21,7 +20,7 @@ func TestNewPublisher(t *testing.T) {
 		tuple.Version = int64(i)
 		pub.Publish(tuple, "namespace", "contextName")
 	}
-	pub.Close() 
+	pub.Close()
 
 	tuples := pub.Query(tuple, "namespace", "contextName")
 	for _, t := range tuples {

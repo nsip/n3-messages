@@ -5,7 +5,7 @@ package n3grpc
 import (
 	"fmt"
 
-	"../messages/pb" //"github.com/nsip/n3-transport/messages/pb"
+	"github.com/nsip/n3-messages/messages/pb" 
 	"google.golang.org/grpc"
 )
 
