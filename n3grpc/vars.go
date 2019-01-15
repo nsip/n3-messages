@@ -1,6 +1,6 @@
 package n3grpc
 
-import u "github.com/cdutwhu/util"
+import u "github.com/cdutwhu/go-util"
 
 var (
 	// PE is

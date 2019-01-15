@@ -81,10 +81,9 @@ func (s *APIServer) SetMessageHandler(mh MessageHandler, qh QueryHandler) {
 	s.queryHandler = qh
 }
 
-func (s *APIServer) Publish(stream pb.API_PublishServer) error { /* Recv, SendAndClose */
-
+// Publish : Recv, SendAndClose
+func (s *APIServer) Publish(stream pb.API_PublishServer) error {
 	var msgCount int64
-
 	for {
 		n3msg, err := stream.Recv()
 		if err == io.EOF {
@@ -101,8 +100,8 @@ func (s *APIServer) Publish(stream pb.API_PublishServer) error { /* Recv, SendAn
 	}
 }
 
-func (s *APIServer) Query(msg *pb.N3Message, stream pb.API_QueryServer) error { /* Send */
-
+// Query : Send
+func (s *APIServer) Query(msg *pb.N3Message, stream pb.API_QueryServer) error {
 	tuples := s.queryHandler(msg)
 	// tuples = []*pb.SPOTuple{}
 	for _, t := range tuples {
