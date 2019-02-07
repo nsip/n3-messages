@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"../messages"
-	"../messages/pb"
+	"github.com/nsip/n3-messages/messages"
+	"github.com/nsip/n3-messages/messages/pb"
 )
 
 func TestServer(t *testing.T) {

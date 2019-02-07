@@ -8,7 +8,7 @@ import (
 	"log"
 	"net"
 
-	"../messages/pb"
+	"github.com/nsip/n3-messages/messages/pb"
 	"google.golang.org/grpc"
 )
 

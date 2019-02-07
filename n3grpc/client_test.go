@@ -3,8 +3,8 @@ package n3grpc
 import (
 	"testing"
 
-	"../messages"
-	"../messages/pb"
+	"github.com/nsip/n3-messages/messages"
+	"github.com/nsip/n3-messages/messages/pb"
 )
 
 func TestPublish(t *testing.T) {
