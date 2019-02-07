@@ -5,8 +5,8 @@ package messages
 import (
 	"strings"
 
+	"./pb"
 	"github.com/gogo/protobuf/proto"
-	"github.com/nsip/n3-messages/messages/pb"
 	"github.com/pkg/errors"
 )
 

@@ -40,5 +40,6 @@ message TxSummary {
 service API {
 	rpc Publish(stream N3Message) returns (TxSummary) {}
 	rpc Query(N3Message) returns (stream SPOTuple) {}
+	rpc Delete(N3Message) returns (TxSummary) {}
 }
 

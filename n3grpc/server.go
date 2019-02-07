@@ -3,12 +3,12 @@
 package n3grpc
 
 import (
-	"fmt"
+	"context"
 	"io"
 	"log"
 	"net"
 
-	"github.com/nsip/n3-messages/messages/pb"
+	"../messages/pb"
 	"google.golang.org/grpc"
 )
 
@@ -21,11 +21,13 @@ import (
 
 type MessageHandler func(*pb.N3Message)
 type QueryHandler func(*pb.N3Message) []*pb.SPOTuple
+type DeleteHandler func(*pb.N3Message) int
 
 type APIServer struct {
-	msgHandler   MessageHandler
-	queryHandler QueryHandler
-	grpcServer   *grpc.Server
+	msgHandler    MessageHandler
+	queryHandler  QueryHandler
+	deleteHandler DeleteHandler
+	grpcServer    *grpc.Server
 }
 
 //
@@ -41,10 +43,16 @@ func NewAPIServer() *APIServer {
 
 	apiServer := &APIServer{
 		grpcServer: grpc.NewServer(),
-		msgHandler: func(msg *pb.N3Message) { msg = nil },
+		msgHandler: func(msg *pb.N3Message) {
+			msg = nil
+		},
 		queryHandler: func(msg *pb.N3Message) []*pb.SPOTuple {
 			msg = nil
 			return nil
+		},
+		deleteHandler: func(msg *pb.N3Message) int {
+			msg = nil
+			return 0
 		},
 	}
 	// bind this api server logic into the generic grpc server
@@ -59,8 +67,7 @@ func NewAPIServer() *APIServer {
 func (s *APIServer) Start(port int) error {
 
 	// get underlying tcp connection
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	PE1(err, "cannot start grpc server: ")
+	lis := Must(net.Listen("tcp", fSf(":%d", port))).(net.Listener)
 
 	// launch the server
 	go func() {
@@ -76,9 +83,8 @@ func (s *APIServer) Start(port int) error {
 // the handler allows business logic to be added by the creator of
 // server to process messages
 //
-func (s *APIServer) SetMessageHandler(mh MessageHandler, qh QueryHandler) {
-	s.msgHandler = mh
-	s.queryHandler = qh
+func (s *APIServer) SetMessageHandler(mh MessageHandler, qh QueryHandler, dh DeleteHandler) {
+	s.msgHandler, s.queryHandler, s.deleteHandler = mh, qh, dh
 }
 
 // Publish : Recv, SendAndClose
@@ -100,14 +106,15 @@ func (s *APIServer) Publish(stream pb.API_PublishServer) error {
 	}
 }
 
-// Query : Send
+// Query : Send one, Receive many
 func (s *APIServer) Query(msg *pb.N3Message, stream pb.API_QueryServer) error {
-	tuples := s.queryHandler(msg)
-	// tuples = []*pb.SPOTuple{}
-	for _, t := range tuples {
-		if err := stream.Send(t); err != nil {
-			return err
-		}
+	for _, t := range s.queryHandler(msg) {
+		PE(stream.Send(t))
 	}
 	return nil
+}
+
+// Delete : Send one, Receive result count
+func (s *APIServer) Delete(ctx context.Context, msg *pb.N3Message) (*pb.TxSummary, error) {
+	return &pb.TxSummary{MsgCount: int64(s.deleteHandler(msg))}, nil
 }
